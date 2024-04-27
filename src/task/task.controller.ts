@@ -7,20 +7,31 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AllParameters, QueryTasks, TaskCreateDto, TaskDto } from './task.dto';
 import { TaskService } from './task.service';
-import { AuthGuardUser } from 'src/user/user.guard';
+import { AuthGuardAdmin, AuthGuardUser } from 'src/user/user.guard';
 
 @UseGuards(AuthGuardUser)
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
+  @UseGuards(AuthGuardAdmin)
+  @Get('/admin')
+  async showAdmin(): Promise<TaskDto[]> {
+    const response = await this.taskService.showAdm();
+    return response;
+  }
+
   @Get()
-  async show(@Query() params: QueryTasks): Promise<TaskDto[]> {
-    const response = await this.taskService.show(params);
+  async show(
+    @Req() request: any,
+    @Query() params: QueryTasks,
+  ): Promise<TaskDto[]> {
+    const response = await this.taskService.show(request.user.id, params);
     return response;
   }
 
@@ -31,21 +42,33 @@ export class TaskController {
   }
 
   @Post()
-  async create(@Body() newTask: TaskCreateDto): Promise<TaskDto> {
+  async create(
+    @Req() request: any,
+    @Body() newTask: TaskCreateDto,
+  ): Promise<TaskDto> {
+    newTask.userId = +request.user.id;
     const response = await this.taskService.create(newTask);
     return response;
   }
 
   @Put('/:id')
   async update(
+    @Req() request: any,
     @Param('id') id: string,
     @Body() taskToUpdate: AllParameters,
   ): Promise<void> {
-    await this.taskService.update(+id, taskToUpdate);
+    await this.taskService.update(
+      { id: request.user.id, username: request.user.username },
+      +id,
+      taskToUpdate,
+    );
   }
 
   @Delete('/:id')
-  async delete(@Param('id') id: string): Promise<void> {
-    await this.taskService.delete(+id);
+  async delete(@Req() request: any, @Param('id') id: string): Promise<void> {
+    await this.taskService.delete(
+      { id: request.user.id, username: request.user.username },
+      +id,
+    );
   }
 }

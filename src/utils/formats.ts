@@ -18,12 +18,17 @@ export class Formats {
     return user;
   }
 
-  static formatTaskCreate(title: string, description: string): TaskDto {
+  static formatTaskCreate(
+    title: string,
+    description: string,
+    userId: number,
+  ): TaskDto {
     const task = new TaskEntity();
 
     task.title = title;
     task.description = description;
     task.status = 'todo';
+    task.userId = userId;
 
     return task;
   }

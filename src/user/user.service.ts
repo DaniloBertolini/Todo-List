@@ -31,7 +31,7 @@ export class UserService {
     const userToSave = await Formats.formatUserCreate(username, password);
     await this.usersRepository.save(userToSave);
 
-    const payload = { sub: userToSave.id, username: userToSave.username };
+    const payload = { id: userToSave.id, username: userToSave.username };
     const token = this.jwtService.sign(payload);
 
     return { token };
@@ -50,7 +50,7 @@ export class UserService {
     if (!(await bcrypt.compare(password, userFound.password)))
       throw new HttpException(`Incorrect Credentials`, HttpStatus.UNAUTHORIZED);
 
-    const payload = { sub: userFound.id, username: userFound.username };
+    const payload = { id: userFound.id, username: userFound.username };
     const token = this.jwtService.sign(payload);
 
     return { token };

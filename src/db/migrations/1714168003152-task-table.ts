@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class TaskTable1714168003152 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -25,9 +30,23 @@ export class TaskTable1714168003152 implements MigrationInterface {
             name: 'status',
             type: 'varchar',
           },
+          {
+            name: 'userId',
+            type: 'int',
+          },
         ],
       }),
       true,
+    );
+
+    await queryRunner.createForeignKey(
+      'tasks',
+      new TableForeignKey({
+        columnNames: ['userId'],
+        referencedTableName: 'users',
+        referencedColumnNames: ['id'],
+        onDelete: 'CASCADE',
+      }),
     );
   }
 

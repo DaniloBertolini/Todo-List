@@ -21,6 +21,9 @@ export class TaskDto {
   @IsEnum(TaskStatusEnum)
   @IsString()
   status: string;
+
+  @IsInt()
+  userId: number;
 }
 
 export class TaskCreateDto {
@@ -31,6 +34,10 @@ export class TaskCreateDto {
   @IsString()
   @Length(2, 150)
   description: string;
+
+  @IsInt()
+  @IsOptional()
+  userId: number;
 }
 
 export class AllParameters {

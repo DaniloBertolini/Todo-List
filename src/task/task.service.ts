@@ -12,23 +12,30 @@ export class TaskService {
     private tasksRepository: Repository<TaskEntity>,
   ) {}
 
-  async show(params: AllParameters): Promise<TaskDto[]> {
-    const searchPrams: FindOptionsWhere<TaskEntity> = {};
+  async showAdm(): Promise<TaskDto[]> {
+    const tasks = await this.tasksRepository.find();
+
+    return tasks;
+  }
+
+  async show(id: number, params: AllParameters): Promise<TaskDto[]> {
+    const searchParams: FindOptionsWhere<TaskEntity> = {};
 
     if (params.title) {
-      searchPrams.title = Like(`%${params.title}%`);
+      searchParams.title = Like(`%${params.title}%`);
     }
 
     if (params.description) {
-      searchPrams.description = Like(`%${params.description}%`);
+      searchParams.description = Like(`%${params.description}%`);
     }
 
     if (params.status) {
-      searchPrams.status = Like(`%${params.status}%`);
+      searchParams.status = Like(`%${params.status}%`);
     }
 
+    searchParams.userId = id;
     const tasks = await this.tasksRepository.find({
-      where: searchPrams,
+      where: searchParams,
     });
 
     return tasks;
@@ -47,15 +54,22 @@ export class TaskService {
   }
 
   async create(newTask: TaskCreateDto): Promise<TaskDto> {
-    const { title, description } = newTask;
+    const { title, description, userId } = newTask;
 
-    const taskToSave = Formats.formatTaskCreate(title, description);
+    const taskToSave = Formats.formatTaskCreate(title, description, userId);
     const response = await this.tasksRepository.save(taskToSave);
     return response;
   }
 
-  async update(id: number, taskToUpdate: AllParameters): Promise<void> {
+  async update(
+    user: { id: number; username: string },
+    id: number,
+    taskToUpdate: AllParameters,
+  ): Promise<void> {
     const task = await this.tasksRepository.findOneBy({ id });
+
+    if (task.userId !== user.id && user.username !== 'admin')
+      throw new HttpException(`You can't delete this`, HttpStatus.FORBIDDEN);
 
     if (!task)
       throw new HttpException(
@@ -66,8 +80,14 @@ export class TaskService {
     await this.tasksRepository.update(id, taskToUpdate);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(
+    user: { id: number; username: string },
+    id: number,
+  ): Promise<void> {
     const task = await this.tasksRepository.findOneBy({ id });
+
+    if (task.userId !== user.id && user.username !== 'admin')
+      throw new HttpException(`You can't delete this`, HttpStatus.FORBIDDEN);
 
     if (!task)
       throw new HttpException(

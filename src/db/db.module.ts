@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from './entities/user.entity';
+import { TaskEntity } from './entities/task.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([UserEntity, TaskEntity]),
   ],
 })
 export class DbModule {}
