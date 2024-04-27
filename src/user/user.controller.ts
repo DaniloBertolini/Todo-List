@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserAuthDto, UserDto } from './user.dto';
+import { AuthGuardAdmin } from './user.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(AuthGuardAdmin)
   @Get()
   async show(): Promise<UserDto[]> {
     const response = await this.userService.show();
