@@ -1,9 +1,8 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'task' })
+@Entity({ name: 'tasks' })
 export class TaskEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ type: 'varchar' })
@@ -14,7 +13,4 @@ export class TaskEntity {
 
   @Column({ default: 'todo' })
   status: string;
-
-  @ManyToOne(() => UserEntity, (user) => user.tasks)
-  user: UserEntity;
 }
