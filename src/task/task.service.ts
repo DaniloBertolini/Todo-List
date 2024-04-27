@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from 'src/db/entities/task.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { AllParameters, TaskCreateDto, TaskDto } from './task.dto';
+import { Formats } from 'src/utils/formats';
 
 @Injectable()
 export class TaskService {
@@ -10,16 +11,6 @@ export class TaskService {
     @InjectRepository(TaskEntity)
     private tasksRepository: Repository<TaskEntity>,
   ) {}
-
-  formatTaskCreate(title: string, description: string): TaskDto {
-    const task = new TaskEntity();
-
-    task.title = title;
-    task.description = description;
-    task.status = 'todo';
-
-    return task;
-  }
 
   async show(params: AllParameters): Promise<TaskDto[]> {
     const searchPrams: FindOptionsWhere<TaskEntity> = {};
@@ -58,7 +49,7 @@ export class TaskService {
   async create(newTask: TaskCreateDto): Promise<TaskDto> {
     const { title, description } = newTask;
 
-    const taskToSave = this.formatTaskCreate(title, description);
+    const taskToSave = Formats.formatTaskCreate(title, description);
     const response = await this.tasksRepository.save(taskToSave);
     return response;
   }

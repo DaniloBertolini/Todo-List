@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/db/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserAuthDto, UserDto } from './user.dto';
+import { Formats } from 'src/utils/formats';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -11,17 +12,6 @@ export class UserService {
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
   ) {}
-
-  async formatUserCreate(username: string, password: string) {
-    const user = new UserEntity();
-
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    user.username = username;
-    user.password = passwordHash;
-
-    return user;
-  }
 
   async show(): Promise<UserDto[]> {
     const users = await this.usersRepository.find();
@@ -36,7 +26,7 @@ export class UserService {
     if (userFound)
       throw new HttpException(`Already Registered User`, HttpStatus.CONFLICT);
 
-    const userToSave = await this.formatUserCreate(username, password);
+    const userToSave = await Formats.formatUserCreate(username, password);
     const response = await this.usersRepository.save(userToSave);
 
     return response;
