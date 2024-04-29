@@ -10,7 +10,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AllParameters, QueryTasks, TaskCreateDto, TaskDto } from './task.dto';
+import {
+  AllParameters,
+  QueryTasks,
+  QueryUserId,
+  TaskCreateDto,
+  TaskDto,
+} from './task.dto';
 import { TaskService } from './task.service';
 import { AuthGuardAdmin, AuthGuardUser } from 'src/user/user.guard';
 
@@ -21,8 +27,8 @@ export class TaskController {
 
   @UseGuards(AuthGuardAdmin)
   @Get('/admin')
-  async showAdmin(): Promise<TaskDto[]> {
-    const response = await this.taskService.showAdm();
+  async showAdmin(@Query() params: QueryUserId): Promise<TaskDto[]> {
+    const response = await this.taskService.showAdm(params);
     return response;
   }
 

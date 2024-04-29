@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from 'src/db/entities/task.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
-import { AllParameters, TaskCreateDto, TaskDto } from './task.dto';
+import { AllParameters, QueryUserId, TaskCreateDto, TaskDto } from './task.dto';
 import { Formats } from 'src/utils/formats';
 
 @Injectable()
@@ -12,8 +12,14 @@ export class TaskService {
     private tasksRepository: Repository<TaskEntity>,
   ) {}
 
-  async showAdm(): Promise<TaskDto[]> {
-    const tasks = await this.tasksRepository.find();
+  async showAdm(params: QueryUserId): Promise<TaskDto[]> {
+    const searchParam: FindOptionsWhere<TaskEntity> = {};
+
+    if (params.userId) {
+      searchParam.userId = +params.userId;
+    }
+
+    const tasks = await this.tasksRepository.find({ where: searchParam });
 
     return tasks;
   }

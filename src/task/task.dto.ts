@@ -71,3 +71,8 @@ export class QueryTasks {
   @IsOptional()
   status: string;
 }
+
+export class QueryUserId {
+  @IsOptional()
+  userId: number;
+}
